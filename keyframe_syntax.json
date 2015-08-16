@@ -1,0 +1,11 @@
+[{
+    percentage: <float>,
+    lights :[{
+        id: <>,
+        state: {
+            hue: <>,
+            bri:<>,
+            sat: <>
+        }
+    }, ...]
+}]

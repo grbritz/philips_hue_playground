@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="./bower_components/color/one-color-all.js"> </script>
+    <script type="text/javascript" src="./bower_components/jscolor/jscolor.js"></script>
+</head>
+<body>
+<h1>YELLO!</h1>
+
+<div>
+Pick a color <input class="color" type="text" />
+</div>
+
+<script type="text/javascript">
+
+    var API_URL = "http://192.168.1.84/api/",
+        USER = "1382541c2286532f3e4e35f4300a1ea7";
+
+
+    $(document).ready(function(){
+        // toggleColorEffect(3);
+        // toggleOnState(3);
+
+        $(".color").on("change", function() {
+            var color = one.color($(this).val());
+            console.log("color string", $(this).val(), "color obj", color);
+            var updateObj = {
+                bri: parseInt(color.lightness() * 253 + 1),
+                hue: parseInt(color.hue() * 65535),
+                sat: parseInt(color.saturation() * 254)
+            };
+
+            console.log("new state", updateObj);
+            setTimeout(updateLightState(3, updateObj), 500);
+
+        });
+    });
+
+    function updateLightState(lightId, newState) {
+        var lightURL = API_URL + USER + "/lights/" + lightId;
+        $.ajax({
+            method: 'PUT',
+            url: lightURL + "/state/",
+            data: JSON.stringify(newState),
+            success: function(response) {
+                console.log("Updated state", response);
+            }
+        });
+    }
+
+
+
+    function toggleColorEffect(lightId) {
+
+        var lightURL = API_URL + USER + "/lights/" + lightId;
+        $.get(lightURL, {}, function(response) {
+            console.log("Getting light info", response);
+            updateEffect(response.state.effect == "none" ? "colorloop" : "none");
+        });
+
+        function updateEffect(effect) {
+            $.ajax({
+                method: 'PUT',
+                url: lightURL + "/state/",
+                data: JSON.stringify({ effect: effect }),
+                success: function(response) {
+                    console.log("Updating effect", response);
+                }
+            });
+        }
+    }
+
+
+    function toggleOnState(lightId) {
+        var lightURL = API_URL + USER + "/lights/" + lightId;
+        $.get(lightURL, {}, function(response) {
+            console.log("Getting light info", response);
+            updateState(response.on == true ? false : true);
+        });
+
+        function updateState(state) {
+            $.ajax({
+                method: 'PUT',
+                url: lightURL + "/state/",
+                data: JSON.stringify({ "on": true }),
+                dataType: "json",
+                success: function(response) {
+                    console.log("Updating on state", response);
+                }
+            });
+        }
+    }
+
+</script>
+</body>
+</html>
